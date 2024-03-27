@@ -1,29 +1,25 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import 'react-native-gesture-handler';
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import EmpLogin from './components/EmpLogin';
+import Dashboard from './components/Dashboard';
+import Homepage from './components/Homepage';
 
-export default function App() {
+const Stack = createStackNavigator();
+
+const App = () => {
   return (
-   <View style={styles.container}>
-       <Text style={style.text}>BPO management</Text>
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen name="Homepage" component={Homepage}/>
+        <Stack.Screen name="EmpLogin" component={EmpLogin} />
+        <Stack.Screen name="Dashboard">
+          {(props) => <Dashboard {...props} />}
+        </Stack.Screen>
+      </Stack.Navigator>
+    </NavigationContainer>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    color:'red'
-  },
-});
-
-const style = StyleSheet.create({
-  text: {
-    fontSize:'1em',
-    color:'red'
-  },
-});
-
+export default App;
