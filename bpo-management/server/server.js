@@ -29,11 +29,32 @@ connection.connect(err => {
 app.use(bodyParser.json());
 app.use(cors());
 
-app.get('/home', (req, res) => {
-  res.sendFile(path.join(__dirname, 'components', 'Homepage.js'));
+// Route for homepage
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html')); // Assuming index.html is your homepage
 });
 
-// Authentication route
+// Authentication route admin
+app.get('/admin', (req, res) => {
+  const { username, password } = req.query;
+
+  const query = `SELECT * FROM admin WHERE username = ? AND password = ?`;
+  connection.query(query, [username, password], (error, results) => {
+    if (error) {
+      console.error('Error executing MySQL query:', error);
+      res.status(500).json({ success: false, message: 'Internal server error' });
+      return;
+    }
+
+    if (results.length > 0) {
+      res.json({ success: true, message: 'Authentication successful', user: results[0] });
+    } else {
+      res.status(401).json({ success: false, message: 'Authentication failed' });
+    }
+  });
+});
+
+// Authentication route user
 app.get('/authenticate', (req, res) => {
   const { username, password } = req.query;
 
@@ -53,28 +74,32 @@ app.get('/authenticate', (req, res) => {
   });
 });
 
-// Route to fetch the username from the database
-app.get('/getUsername/:userId', (req, res) => {
-  const userId = req.params.userId;
+// Route to fetch all users from the database
+app.get('/users', (req, res) => {
+  const query = `SELECT * FROM users`;
 
-  // Query to fetch the username based on the user ID
-  const query = `SELECT username FROM users WHERE id = ?`;
-
-  // Execute the query
-  connection.query(query, [userId], (error, results) => {
+  connection.query(query, (error, results) => {
     if (error) {
       console.error('Error executing MySQL query:', error);
       res.status(500).json({ success: false, message: 'Internal server error' });
       return;
     }
 
-    if (results.length > 0) {
-      const username = results[0].username;
-      res.json({ success: true, username: username });
-    } else {
-      // If no user found with the given ID
-      res.status(404).json({ success: false, message: 'User not found' });
+    res.json(results);
+  });
+});
+
+app.post('/addworker',(req,res)=>{
+  const {name, role, password} = req.body;
+  const query = `INSERT INTO users (username,password,role) VALUES (?, ?)`
+  connection.query(query, [name,role,password],(error, results) => {
+    if (error) {
+      console.error('Error executing MySQL query:', error);
+      res.status(500).json({ success: false, message: 'Internal server error' });
+      return;
     }
+
+    res.json({ success: true, message: 'Worker added successfully' });
   });
 });
 
