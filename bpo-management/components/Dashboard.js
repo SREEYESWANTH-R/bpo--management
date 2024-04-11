@@ -12,7 +12,7 @@ const Dashboard = () => {
 
   const fetchUsername = async () => {
     try {
-      const response = await fetch('http://localhost:8081/getUsername/1'); // Replace '1' with the actual user ID
+      const response = await fetch('http://localhost:8081/empUsername/1'); // Replace '1' with the actual user ID
       if (!response.ok) {
         throw new Error(`Failed to fetch username: ${response.status}`);
       }
