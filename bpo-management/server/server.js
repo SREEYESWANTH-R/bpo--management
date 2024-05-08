@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const mysql = require('mysql2');
 const cors = require('cors');
 const path = require('path');
+const { error } = require('console');
 
 // Create Express app
 const app = express();
@@ -90,9 +91,9 @@ app.get('/users', (req, res) => {
 });
 
 app.post('/addworker',(req,res)=>{
-  const {name, role, password} = req.body;
-  const query = `INSERT INTO users (username,password,role) VALUES (?, ?)`
-  connection.query(query, [name,role,password],(error, results) => {
+  const {name, role, password, pendingWork,completedWork} = req.body;
+  const query = `INSERT INTO users (username,password,role,pending_work,completed_work) VALUES (?, ?, ?,?,?)`
+  connection.query(query, [name,password,role,pendingWork,completedWork],(error, results) => {
     if (error) {
       console.error('Error executing MySQL query:', error);
       res.status(500).json({ success: false, message: 'Internal server error' });
@@ -103,6 +104,32 @@ app.post('/addworker',(req,res)=>{
   });
 });
 
+app.post('/addtask',(req,res)=>{
+  const {name, work, description, dueDate} = req.body;
+  const query = 'INSERT INTO task (name, work, description, due_date) VALUES (?, ?, ?, ?)'
+  connection.query(query, [name,work,description,dueDate],(error, results) => {
+    if (error) {
+      console.error('Error executing MySQL query:', error);
+      res.status(500).json({ success: false, message: 'Internal server error' });
+      return;
+    }
+
+    res.json({ success: true, message: 'task added successfully' });
+  });
+})
+
+app.get('/tasks',(req,res)=>{
+  const query = "SELECT * from task WHERE name = 'John_Doe'"
+  connection.query(query,(error, results) => {
+    if (error) {
+      console.error('Error executing MySQL query:', error);
+      res.status(500).json({ success: false, message: 'Internal server error' });
+      return;
+    }
+
+    res.json(results);
+  });
+})
 
 // Start the server
 app.listen(PORT, () => {

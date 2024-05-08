@@ -1,25 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import { View, TouchableOpacity, StyleSheet, Text } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Text, ScrollView } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import axios from 'axios';
 
 const Dashboard = () => {
   const [showOptions, setShowOptions] = useState(false);
   const [username, setUsername] = useState('');
+  const [tasks, setTasks] = useState([]);
 
   useEffect(() => {
     fetchUsername(); // Fetch username when component mounts
+    fetchTasks(); // Fetch tasks when component mounts
   }, []);
 
   const fetchUsername = async () => {
     try {
-      const response = await fetch('http://localhost:8081/empUsername/1'); // Replace '1' with the actual user ID
-      if (!response.ok) {
-        throw new Error(`Failed to fetch username: ${response.status}`);
-      }
-      const data = await response.json();
-      setUsername(data.username);
+      const response = await axios.get('http://localhost:8081/user?id=1'); // Replace '1' with the actual user ID
+      setUsername(response.data.username);
     } catch (error) {
       console.error('Error fetching username:', error.message);
+    }
+  };
+
+  const fetchTasks = async () => {
+    try {
+      const response = await axios.get('http://localhost:8081/tasks'); // Fetch tasks from backend
+      setTasks(response.data.filter(task => task.name === 'John_Doe')); // Filter tasks for john_doe
+    } catch (error) {
+      console.error('Error fetching tasks:', error.message);
     }
   };
 
@@ -34,6 +42,18 @@ const Dashboard = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.headerText}>BPO Management</Text>
+      <ScrollView style={styles.tasksContainer}>
+        <View style={styles.taskRow}>
+          {tasks.map((task, index) => (
+            <TouchableOpacity key={index} style={styles.taskCard} onPress={() => console.log('Task clicked')}>
+              <Text style={styles.taskAttribute}>Name: {task.name}</Text>
+              <Text style={styles.taskAttribute}>Work: {task.work}</Text>
+              <Text style={styles.taskAttribute}>Description: {task.description}</Text>
+              <Text style={styles.taskAttribute}>Due Date: {task.due_date}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </ScrollView>
       {showOptions && (
         <View style={styles.optionsContainer}>
           <TouchableOpacity style={styles.backIcon} onPress={closeOptions}>
@@ -116,6 +136,29 @@ const styles = StyleSheet.create({
   },
   username: {
     fontSize: 20,
+  },
+  tasksContainer: {
+    flex: 1,
+    marginTop: 20,
+    padding: 10,
+    marginLeft: '25%', // Adjusted to avoid overlapping with options container
+  },
+  taskRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  taskCard: {
+    width: '48%', // Adjusted width to accommodate two cards in a row with spacing
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 15,
+    elevation: 3,
+  },
+  taskAttribute: {
+    fontSize: 16,
+    marginBottom: 5,
   },
 });
 

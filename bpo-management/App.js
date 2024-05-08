@@ -7,6 +7,8 @@ import Dashboard from './components/Dashboard';
 import Homepage from './components/Homepage';
 import AdminLogin from './components/AdminLogin';
 import AdminDash from './components/AdminDash';
+import AddWorker from './components/AddWorker';
+import AddTask from './components/AddTask';
 
 const Stack = createStackNavigator();
 
@@ -21,6 +23,8 @@ const App = () => {
           {(props) => <Dashboard {...props} />}
         </Stack.Screen>
         <Stack.Screen name="AdminDash" component={AdminDash} />
+        <Stack.Screen name="AddWorker" component={AddWorker} />
+        <Stack.Screen name="AddTask" component={AddTask} />
       </Stack.Navigator>
     </NavigationContainer>
   );
